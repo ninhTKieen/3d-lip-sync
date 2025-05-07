@@ -1,4 +1,4 @@
-package com.anonymous.x3Dlipsync
+package com.fsimobile.test
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
