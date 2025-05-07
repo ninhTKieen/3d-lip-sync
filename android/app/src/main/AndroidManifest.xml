@@ -25,6 +25,8 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="3dlipsync"/>
+        <data android:scheme="com.anonymous.x3Dlipsync"/>
+        <data android:scheme="exp+3d-lip-sync"/>
       </intent-filter>
     </activity>
   </application>

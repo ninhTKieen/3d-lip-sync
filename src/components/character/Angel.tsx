@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useAnimations, useGLTF, useTexture } from "@react-three/drei/native";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { Asset } from "expo-asset";
 import React, { useRef } from "react";
 import usePromise from "react-promise-suspense";

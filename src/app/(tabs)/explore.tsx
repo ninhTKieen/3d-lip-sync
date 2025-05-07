@@ -1,5 +1,4 @@
-import { Character } from "@/components/character/Character";
-import { Duck } from "@/components/character/Duck";
+import { Angel } from "@/components/character/Angel";
 import { Canvas } from "@react-three/fiber/native";
 import useControls from "r3f-native-orbitcontrols";
 import { Suspense } from "react";
@@ -28,8 +27,7 @@ export default function TabTwoScreen() {
           <OrbitControls />
           <ambientLight intensity={3} />
           <Suspense>
-            {/* <Duck /> */}
-            <Character />
+            <Angel />
           </Suspense>
         </Canvas>
       </View>
