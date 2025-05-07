@@ -1,74 +1,39 @@
-import { Asset } from "expo-asset";
-import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
-import { Renderer } from "expo-three";
-import { StyleSheet, View } from "react-native";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const modelAsset = Asset.fromModule(require("@/assets/models/test.glb"));
-
-const scene = new THREE.Scene();
+import { Character } from "@/components/character/Character";
+import { Duck } from "@/components/character/Duck";
+import { Canvas } from "@react-three/fiber/native";
+import useControls from "r3f-native-orbitcontrols";
+import { Suspense } from "react";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 
 export default function TabTwoScreen() {
-  // const requestRef = useRef<number>(0);
+  const [OrbitControls, events] = useControls();
 
-  const onContextCreate = async (gl: ExpoWebGLRenderingContext) => {
-    const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
-
-    const renderer = new Renderer({ gl });
-    renderer.setSize(width, height);
-
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-    camera.position.z = 5;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
-
-    await modelAsset.downloadAsync();
-    const loader = new GLTFLoader();
-    const glbScene = await new Promise<THREE.Group>((resolve, reject) => {
-      loader.load(
-        modelAsset.localUri || modelAsset.uri,
-        (gltf) => {
-          // Traverse and configure materials
-          gltf.scene.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              const mesh = child as THREE.Mesh;
-              if (mesh.material) {
-                const material = mesh.material as THREE.Material;
-                material.side = THREE.FrontSide;
-                material.needsUpdate = true;
-              }
-            }
-          });
-          resolve(gltf.scene);
-        },
-        undefined,
-        reject
-      );
-    });
-
-    scene.add(glbScene);
-
-    // Animation loop
-    const animate = () => {
-      // requestRef.current = requestAnimationFrame(animate);
-      glbScene.rotation.y += 0.01;
-      renderer.render(scene, camera);
-      gl.endFrameEXP();
-    };
-
-    animate();
-  };
   return (
-    <View style={styles.container}>
-      <GLView style={{ flex: 1 }} onContextCreate={onContextCreate} />
-    </View>
+    <SafeAreaView style={styles.container} {...events}>
+      <View style={{ flex: 1 }} {...events}>
+        <Canvas
+          events={null as any}
+          onCreated={(state) => {
+            const _gl: any = state.gl.getContext();
+            const pixelStorei = _gl.pixelStorei.bind(_gl);
+            _gl.pixelStorei = function (...args: any[]) {
+              const [parameter] = args;
+              switch (parameter) {
+                case _gl.UNPACK_FLIP_Y_WEBGL:
+                  return pixelStorei(...args);
+              }
+            };
+          }}
+        >
+          <OrbitControls />
+          <ambientLight intensity={3} />
+          <Suspense>
+            {/* <Duck /> */}
+            <Character />
+          </Suspense>
+        </Canvas>
+      </View>
+    </SafeAreaView>
   );
 }
 
