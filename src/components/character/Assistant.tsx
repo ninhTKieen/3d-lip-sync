@@ -1,8 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import { useAnimations, useGLTF } from "@react-three/drei";
-import { Asset } from "expo-asset";
-import React, { useRef } from "react";
-import usePromise from "react-promise-suspense";
+import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTF } from "three-stdlib";
 
@@ -12,45 +10,76 @@ type GLTFResult = GLTF & {
     EyeRight: THREE.SkinnedMesh;
     Wolf3D_Head: THREE.SkinnedMesh;
     Wolf3D_Teeth: THREE.SkinnedMesh;
+    Wolf3D_Hair: THREE.SkinnedMesh;
     Wolf3D_Glasses: THREE.SkinnedMesh;
-    Wolf3D_Headwear: THREE.SkinnedMesh;
-    Wolf3D_Body: THREE.SkinnedMesh;
+    Wolf3D_Outfit_Top: THREE.SkinnedMesh;
     Wolf3D_Outfit_Bottom: THREE.SkinnedMesh;
     Wolf3D_Outfit_Footwear: THREE.SkinnedMesh;
-    Wolf3D_Outfit_Top: THREE.SkinnedMesh;
+    Wolf3D_Body: THREE.SkinnedMesh;
     Hips: THREE.Bone;
   };
   materials: {
     Wolf3D_Eye: THREE.MeshStandardMaterial;
     Wolf3D_Skin: THREE.MeshStandardMaterial;
     Wolf3D_Teeth: THREE.MeshStandardMaterial;
+    Wolf3D_Hair: THREE.MeshStandardMaterial;
     Wolf3D_Glasses: THREE.MeshStandardMaterial;
-    Wolf3D_Headwear: THREE.MeshStandardMaterial;
-    Wolf3D_Body: THREE.MeshStandardMaterial;
+    Wolf3D_Outfit_Top: THREE.MeshStandardMaterial;
     Wolf3D_Outfit_Bottom: THREE.MeshStandardMaterial;
     Wolf3D_Outfit_Footwear: THREE.MeshStandardMaterial;
-    Wolf3D_Outfit_Top: THREE.MeshStandardMaterial;
+    Wolf3D_Body: THREE.MeshPhysicalMaterial;
   };
 };
 
-const getUrl = async () => {
-  const asset = await Asset.fromModule(require("@/assets/models/test.glb"));
-  await asset.downloadAsync();
-
-  return asset.localUri || asset.uri;
-};
-
-export function Angel(props: React.JSX.IntrinsicElements["group"]) {
-  const url = usePromise(getUrl, []);
+export function Assistant(props: JSX.IntrinsicElements["group"]) {
+  const [animation, setAnimation] = useState<string>("idle");
   const group = useRef<THREE.Group>(null);
-  const { nodes, materials, animations } = useGLTF(
-    url
-  ) as unknown as GLTFResult;
 
-  useAnimations(animations, group);
+  const { nodes, materials } = useGLTF(
+    require("@/assets/models/ai_assistant.glb")
+  ) as GLTFResult;
+
+  const { animations: angryAnim } = useFBX(
+    require("@/assets/models/animations/angry.fbx")
+  );
+  const { animations: greetingAnim } = useFBX(
+    require("@/assets/models/animations/greeting.fbx")
+  );
+  const { animations: idleAnim } = useFBX(
+    require("@/assets/models/animations/idle.fbx")
+  );
+
+  angryAnim[0].name = "angry";
+  greetingAnim[0].name = "greeting";
+  idleAnim[0].name = "idle";
+
+  const { actions } = useAnimations(
+    [angryAnim[0], greetingAnim[0], idleAnim[0]],
+    group
+  );
+
+  useEffect(() => {
+    actions[animation]?.reset().fadeIn(0.5).play();
+
+    return () => {
+      actions[animation]?.fadeOut(0.5);
+    };
+  }, [actions, animation]);
+
+  useEffect(() => {
+    if (
+      nodes.Wolf3D_Head?.morphTargetDictionary &&
+      nodes.Wolf3D_Head?.morphTargetInfluences &&
+      nodes.Wolf3D_Teeth?.morphTargetInfluences
+    ) {
+      console.log("nodes.Wolf3D_Head", nodes.Wolf3D_Head.morphTargetDictionary);
+      const index = nodes.Wolf3D_Head.morphTargetDictionary["viseme_O"];
+      nodes.Wolf3D_Head.morphTargetInfluences[index] = 1;
+    }
+  }, [nodes.Wolf3D_Head, nodes.Wolf3D_Teeth]);
 
   return (
-    <group {...props} dispose={null}>
+    <group {...props} dispose={null} ref={group}>
       <primitive object={nodes.Hips} />
       <skinnedMesh
         name="EyeLeft"
@@ -85,19 +114,19 @@ export function Angel(props: React.JSX.IntrinsicElements["group"]) {
         morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
       />
       <skinnedMesh
+        geometry={nodes.Wolf3D_Hair.geometry}
+        material={materials.Wolf3D_Hair}
+        skeleton={nodes.Wolf3D_Hair.skeleton}
+      />
+      <skinnedMesh
         geometry={nodes.Wolf3D_Glasses.geometry}
         material={materials.Wolf3D_Glasses}
         skeleton={nodes.Wolf3D_Glasses.skeleton}
       />
       <skinnedMesh
-        geometry={nodes.Wolf3D_Headwear.geometry}
-        material={materials.Wolf3D_Headwear}
-        skeleton={nodes.Wolf3D_Headwear.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Body.geometry}
-        material={materials.Wolf3D_Body}
-        skeleton={nodes.Wolf3D_Body.skeleton}
+        geometry={nodes.Wolf3D_Outfit_Top.geometry}
+        material={materials.Wolf3D_Outfit_Top}
+        skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
       />
       <skinnedMesh
         geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
@@ -110,12 +139,12 @@ export function Angel(props: React.JSX.IntrinsicElements["group"]) {
         skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
       />
       <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Top.geometry}
-        material={materials.Wolf3D_Outfit_Top}
-        skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
+        geometry={nodes.Wolf3D_Body.geometry}
+        material={materials.Wolf3D_Body}
+        skeleton={nodes.Wolf3D_Body.skeleton}
       />
     </group>
   );
 }
 
-// useGLTF.preload(modelAsset.localUri || modelAsset.uri);
+useGLTF.preload(require("@/assets/models/ai_assistant.glb"));

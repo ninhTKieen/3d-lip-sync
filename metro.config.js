@@ -12,7 +12,7 @@ module.exports = async () => {
     }
   });
   //   config.resolver.sourceExts = ["glb", "gltf", "png", "jpg"];
-  ["glb", "gltf", "png", "jpg"].forEach((ext) => {
+  ["glb", "gltf", "png", "jpg", "fbx", "mp3"].forEach((ext) => {
     if (!config.resolver.assetExts.includes(ext)) {
       config.resolver.assetExts.push(ext);
     }

@@ -1,4 +1,4 @@
-package com.anonymous.x3Dlipsync
+package com.fsimobile.test
 
 import android.app.Application
 import android.content.res.Configuration

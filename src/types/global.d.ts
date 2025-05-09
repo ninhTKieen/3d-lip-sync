@@ -18,4 +18,17 @@ declare module "*.jpeg" {
   export default content;
 }
 
+declare module "*.fbx" {
+  const content: any;
+  export default content;
+}
 
+declare module "*.mp3" {
+  const content: any;
+  export default content;
+}
+
+declare module "*.json" {
+  const content: any;
+  export default content;
+}
