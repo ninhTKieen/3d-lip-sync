@@ -45,7 +45,7 @@ const VISEME_MAP = new Map([
 export function Black(props: JSX.IntrinsicElements["group"]) {
   const [animation, setAnimation] = useState<
     "angry" | "greeting" | "idle" | "talking"
-  >("greeting");
+  >("talking");
   const [audio, setAudio] = useState<Audio.Sound | null>(null);
 
   const group = useRef<THREE.Group>(null);
@@ -94,7 +94,7 @@ export function Black(props: JSX.IntrinsicElements["group"]) {
 
       await sound.playAsync();
       isPlaying.current = true;
-      setAnimation("idle");
+      setAnimation("talking");
     } catch (error) {
       console.log(error);
     }
