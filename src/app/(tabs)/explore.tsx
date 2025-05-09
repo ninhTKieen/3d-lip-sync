@@ -1,8 +1,10 @@
-import { Angel } from "@/components/character/Angel";
+import { Assistant } from "@/components/character/Assistant";
 import { Canvas } from "@react-three/fiber/native";
+import { Environment } from "@react-three/drei/native";
 import useControls from "r3f-native-orbitcontrols";
 import { Suspense } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { Button, SafeAreaView, StyleSheet, View } from "react-native";
+import { Black } from "@/components/character/Black";
 
 export default function TabTwoScreen() {
   const [OrbitControls, events] = useControls();
@@ -27,7 +29,8 @@ export default function TabTwoScreen() {
           <OrbitControls />
           <ambientLight intensity={3} />
           <Suspense>
-            <Angel />
+            <Black scale={4} position={[0, -6, 1]} />
+            <Environment preset="apartment" />
           </Suspense>
         </Canvas>
       </View>
